@@ -2,7 +2,9 @@
 
 namespace app\controllers;
 
+use app\models\PromotionRepository;
 use Yii;
+use yii\data\Pagination;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
@@ -61,7 +63,27 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        $pagination = new Pagination(
+            [
+                'totalCount' => PromotionRepository::getCalcDataCount(),
+                'pageSize'   => 5,
+            ]
+        );
+
+        $promotions = [
+            'max'  => PromotionRepository::getMaxPrice(),
+            'min'  => PromotionRepository::getMinPrice(),
+            'all'  => [
+                'date'  => PromotionRepository::getAllDate(),
+                'price' => PromotionRepository::getAllPrice(),
+            ],
+            'calc' => [
+                'promotions' => PromotionRepository::getCalcData($pagination),
+                'pagination' => $pagination,
+            ],
+        ];
+
+        return $this->render('index', ['promotions' => $promotions]);
     }
 
     /**
